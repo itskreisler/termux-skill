@@ -1,6 +1,6 @@
 {
   "name": "termux-skill",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Termux API skill — control Android devices via Termux API. Auto-detects direct access (Termux/proot-distro) or falls back to SSH.",
   "keywords": [
     "termux",

@@ -335,3 +335,77 @@ if [ "$LEVEL" -lt 20 ]; then
   termux-exec termux-notification -t "Battery Low" -c "$LEVEL% remaining"
 fi
 ```
+
+### Interactive URL/file opener (termux-url-opener / termux-file-editor)
+
+Save as `~/bin/termux-url-opener` and symlink both:
+
+```bash
+ln -s ~/bin/termux-url-opener ~/bin/termux-file-editor
+```
+
+```bash
+#!/data/data/com.termux/files/usr/bin/bash
+cd ~/downloads
+TMPFILE=dialog.tmp
+
+function a {
+  if which "$1" >/dev/null 2>&1; then
+    M[${#M[*]}]="${3:-$1}"
+    M[${#M[*]}]="${2:-$1}"
+  fi
+}
+
+a w3m 'browser/viewer w3m'
+
+if [[ $0 =~ -file-editor$ ]]; then
+  T=file
+  TN=name
+  a sensible-editor
+  a nano 'Nano Editor'
+  a micro 'Micro Editor'
+  a mcedit 'Midnight Commander Editor'
+  a vim 'Vim'
+  a vi 'Vi viewer/editor'
+  a sensible-pager
+  a more 'viewer more'
+  a less 'viewer less'
+  a proj 'add to project' 'proj file ""'
+  a termux-share 'edit in app' 'termux-share -a edit'
+  a termux-share 'send to app' 'termux-share -a send'
+  a termux-share 'view in app'
+elif [[ $0 =~ -url-opener$ ]]; then
+  T=url
+  a sensible-browser
+  a elinks
+  a lynx
+  a proj bookmark 'project bookmark' 'proj url ""'
+
+  if [[ "$1" == *"open.spotify.com"* ]]; then
+    a spotdl "Download with spotdl" 'spotdl --bitrate "320k" --output "$HOME/storage/shared/spotdl/"'
+  fi
+
+  if [[ $1 =~ ^(ht|f)tp: ]] || ! [[ "$(wget 2>&1)" =~ ^BusyBox ]]; then
+    a wget 'download with wget'
+  fi
+  a termux-open-url 'view in app'
+else
+  T=unknown
+fi
+
+a termux-clipboard-set "copy $T$TN to clipboard"
+a termux-share "share $T$TN as text" 'termux-share -a send <<<'
+a termux-open 'view in app' 'termux-open --chooser'
+a termux-open 'send to app' 'termux-open --send --chooser'
+
+dialog --title "Select Action" --menu "What to do with $T $1?" 0 0 0 "${M[@]}" 2>$TMPFILE
+
+if [ $? = 0 ]; then
+  eval "$(< $TMPFILE) '$1'"
+elif [ -s $TMPFILE ]; then
+  echo "Dialog error:"
+  cat $TMPFILE
+fi
+
+rm -f $TMPFILE
+```
