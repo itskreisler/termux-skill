@@ -25,9 +25,16 @@ const cwd = process.cwd();
 const args = process.argv.slice(2);
 const flags = new Set(args.filter(a => a.startsWith("-")));
 const help = flags.has("--help") || flags.has("-h");
+const version = flags.has("--version") || flags.has("-v");
 const uninstall = flags.has("--uninstall");
 const update = flags.has("--update") || flags.has("-u");
 const force = flags.has("--force") || flags.has("-f");
+
+// ── Version ──────────────────────────────────────────────────
+if (version) {
+  console.log(VERSION);
+  process.exit(0);
+}
 
 // ── Help ─────────────────────────────────────────────────────
 if (help) {
@@ -44,6 +51,7 @@ if (help) {
   console.log("  \x1b[37mOptions:\x1b[0m");
   console.log("    -u, --update     Reinstall skill (overwrites existing)");
   console.log("    -f, --force      Skip hash check on update");
+  console.log("    -v, --version    Show version");
   console.log("    -h, --help       Show help message");
   console.log("");
   process.exit(0);
