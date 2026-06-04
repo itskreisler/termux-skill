@@ -2,149 +2,89 @@
 import Layout from '../layouts/Layout.astro';
 import '../styles/global.css';
 
-const iconFiles = import.meta.glob<string>('../icons/*.svg', { query: '?raw', import: 'default', eager: true });
-
-function toFilename(name: string) {
-  return name.toLowerCase().replace(/#/g, 'sharp').replace(/\//g, '-').replace(/\s+/g, '-').replace(/\./g, '') + '.svg';
-}
-
-function getIcon(name: string): string | undefined {
-  const key = `../icons/${toFilename(name)}`;
-  return iconFiles[key];
-}
-
-interface Sponsor {
-  login: string;
-  id: number;
-}
-
-const featuredSponsors: Sponsor[] = [
-  { login: 'crisvegadev', id: 17342446 },
-  { login: 'pmNiko', id: 18277737 },
-  { login: 'santiagohernandezs', id: 68081080 },
-  { login: 'joelguizado', id: 71227026 },
-  { login: 'SergioAcostaTer', id: 98357160 },
-  { login: 'Bykhe', id: 141531098 },
-  { login: 'ChristianUtria', id: 164814299 },
-  { login: 'x1xhlol', id: 185671340 },
-  { login: 'Gjusev', id: 71157156 },
-  { login: 'meogiegieuax', id: 207284467 },
-  { login: 'sneugoeanxuer', id: 212690065 },
-  { login: 'cereauaioer', id: 264738581 },
-  { login: 'architest8', id: 264739452 },
+const cmdGroups = [
+  {
+    name: 'Device Info',
+    commands: [
+      'termux-battery-status',
+      'termux-audio-info',
+      'termux-wifi-connectioninfo',
+      'termux-wifi-scaninfo',
+      'termux-telephony-deviceinfo',
+      'termux-telephony-cellinfo',
+      'termux-sensor -l',
+      'termux-sensor -s <sensor> -n 1',
+    ],
+  },
+  {
+    name: 'Camera & Media',
+    commands: [
+      'termux-camera-info',
+      'termux-camera-photo -c <id> <file.jpg>',
+      'termux-microphone-record -f <file>',
+      'termux-media-player play <file>',
+      'termux-tts-speak "text"',
+      'termux-tts-engines',
+    ],
+  },
+  {
+    name: 'Notifications & Feedback',
+    commands: [
+      'termux-notification -t "title" -c "content"',
+      'termux-notification-remove --id <id>',
+      'termux-toast "message"',
+      'termux-vibrate -d <ms>',
+      'termux-torch on/off',
+      'termux-dialog',
+    ],
+  },
+  {
+    name: 'Communication',
+    commands: [
+      'termux-sms-list -l 10',
+      'termux-sms-send -n <number> "message"',
+      'termux-contact-list',
+      'termux-call-log -l 10',
+      'termux-telephony-call <number>',
+    ],
+  },
+  {
+    name: 'Clipboard & Location',
+    commands: [
+      'termux-clipboard-get',
+      'termux-clipboard-set "text"',
+      'termux-location',
+      'termux-location -p gps',
+      'termux-location -p network',
+    ],
+  },
+  {
+    name: 'System & Storage',
+    commands: [
+      'termux-volume',
+      'termux-brightness <0-255>',
+      'termux-wallpaper -f <file>',
+      'termux-wake-lock',
+      'termux-wake-unlock',
+      'termux-share -a send <file>',
+      'termux-open <file>',
+      'termux-open-url <url>',
+      'termux-download <url>',
+      'termux-storage-get <dest>',
+    ],
+  },
 ];
-
-let sponsors: Sponsor[] = featuredSponsors;
-
-try {
-  const token = import.meta.env.GITHUB_TOKEN;
-  if (token) {
-    const res = await fetch('https://api.github.com/graphql', {
-      method: 'POST',
-      headers: {
-        Authorization: `bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: `{
-          user(login: "midudev") {
-            sponsorshipsAsMaintainer(first: 100, activeOnly: true) {
-              nodes {
-                sponsorEntity {
-                  ... on User { login databaseId }
-                  ... on Organization { login databaseId }
-                }
-              }
-            }
-          }
-        }`,
-      }),
-    });
-    const data = await res.json();
-    const live = (data?.data?.user?.sponsorshipsAsMaintainer?.nodes ?? [])
-      .map((n: any) => ({
-        login: n.sponsorEntity?.login,
-        id: n.sponsorEntity?.databaseId,
-      }))
-      .filter((s: Sponsor) => s.login && s.id);
-    if (live.length > 0) sponsors = live;
-  }
-} catch {
-  // Falls back to featuredSponsors
-}
-
-const { SKILLS_MAP } = await import('../../packages/autoskills/skills-map.ts');
-const { default: cliPkg } = await import('../../packages/autoskills/package.json', { with: { type: 'json' } });
-const cliVersion = cliPkg.version;
-
-const popularityOrder = [
-  'typescript',
-  'zod',
-  'react-hook-form',
-  'react',
-  'nextjs',
-  'node',
-  'tailwind',
-  'vue',
-  'angular',
-  'vite',
-  'astro',
-  'nuxt',
-  'svelte',
-  'expo',
-  'react-native',
-  'bun',
-  'elysia',
-  'deno',
-  'supabase',
-  'cloudflare',
-  'cloudflare-agents',
-  'cloudflare-durable-objects',
-  'cloudflare-ai',
-  'terraform',
-  'vercel-deploy',
-  'vercel-ai',
-  'shadcn',
-  'playwright',
-  'turborepo',
-  'better-auth',
-  'clerk',
-  'pinia',
-  'neon',
-  'remotion',
-  'gsap',
-  'oxlint',
-  'express',
-  'go',
-  'swiftui',
-  'azure',
-  'aws',
-  'elevenlabs',
-  'kotlin-multiplatform',
-  'android',
-  'java',
-  'springboot',
-  'threejs'
-];
-
-const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
-  const ai = popularityOrder.indexOf(a.id);
-  const bi = popularityOrder.indexOf(b.id);
-  return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
-});
-
 ---
 
 <Layout>
-  <!-- Left column: scrollable content -->
   <main class="text-sm leading-relaxed px-6 py-12 lg:w-1/2 lg:pl-12 lg:pr-8 lg:py-16">
 
-    <!-- ASCII Logo (animated reveal) -->
+    <!-- Logo -->
     <pre id="ascii-logo" class="text-[6px] sm:text-xs lg:text-[9px] leading-none mb-8 h-[6lh] overflow-hidden" aria-hidden="true"></pre>
 
     <h1 class="text-zinc-400 mb-8">
-      Auto-detect your tech stack and install the best<br/>
-      AI agent skills for your project.
+      Control Android devices via Termux API.<br/>
+      Auto-detects direct access or falls back to SSH.
     </h1>
 
     <!-- Install command -->
@@ -152,7 +92,7 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
       <p class="text-zinc-600 mb-2 uppercase tracking-widest text-xs">Try it now</p>
       <div class="flex items-center gap-3 bg-zinc-900/80 border border-zinc-800 px-4 py-3 w-fit cursor-pointer group" id="install-cmd">
         <span class="text-zinc-600">$</span>
-        <span class="text-zinc-100">npx autoskills</span>
+        <span class="text-zinc-100">npx -y termux-skill</span>
         <button
           class="ml-6 text-zinc-600 hover:text-zinc-300 transition-colors"
           aria-label="Copy command"
@@ -166,10 +106,10 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
       </div>
     </div>
 
-    <!-- Terminal (mobile/tablet only — on desktop it's the fixed right panel) -->
+    <!-- Terminal panel -->
     <div class="mb-16 lg:fixed lg:top-0 lg:right-0 lg:w-1/2 lg:h-screen lg:mb-0 lg:flex lg:flex-col lg:p-8 xl:p-12 lg:border-l lg:border-zinc-800/50 lg:z-10">
       <p class="text-zinc-600 mb-2 uppercase tracking-widest text-xs lg:hidden">Output</p>
-      <div class="border border-zinc-800 bg-zinc-950 lg:w-full lg:rounded-lg lg:overflow-hidden lg:shadow-2xl lg:shadow-black/20 lg:flex lg:flex-col lg:max-h-full lg:h-full" id="terminal" data-version={cliVersion}>
+      <div class="border border-zinc-800 bg-zinc-950 lg:w-full lg:rounded-lg lg:overflow-hidden lg:shadow-2xl lg:shadow-black/20 lg:flex lg:flex-col lg:max-h-full lg:h-full" id="terminal">
         <div class="flex items-center gap-1.5 px-3 py-2 border-b border-zinc-800 shrink-0">
           <span class="w-2.5 h-2.5 rounded-full bg-zinc-800"></span>
           <span class="w-2.5 h-2.5 rounded-full bg-zinc-800"></span>
@@ -182,36 +122,29 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
     <!-- Separator -->
     <div class="mb-12 h-0.5 w-full bg-zinc-700"></div>
 
-    <!-- How it works -->
+    <!-- What is termux-skill -->
     <div class="mb-12">
-      <p class="text-zinc-600 mb-6 uppercase tracking-widest text-xs">How it works</p>
+      <p class="text-zinc-600 mb-6 uppercase tracking-widest text-xs">What is termux-skill</p>
       <div class="space-y-4">
         <div class="flex gap-4">
           <span class="text-zinc-600 shrink-0">[1]</span>
           <div>
-            <p class="text-zinc-200">Run the command</p>
-            <p class="text-zinc-500">Execute <span class="text-zinc-400">npx autoskills</span> in your project root.</p>
+            <p class="text-zinc-200">Install for any AI agent</p>
+            <p class="text-zinc-500">Run <span class="text-zinc-400">npx -y termux-skill</span> and the skill is ready for your agent (OpenCode, Claude Code, Cursor, etc.).</p>
           </div>
         </div>
         <div class="flex gap-4">
           <span class="text-zinc-600 shrink-0">[2]</span>
           <div>
-            <p class="text-zinc-200">Auto-detect</p>
-            <p class="text-zinc-500">Scans your package.json and config files to detect your stack.</p>
+            <p class="text-zinc-200">Automatic environment detection</p>
+            <p class="text-zinc-500">If running in native Termux, binaries are used directly from PATH. If in proot-distro, access via <span class="text-zinc-400">/data/data/com.termux/files/usr/bin/</span>. If remote, falls back to SSH on port 8022.</p>
           </div>
         </div>
         <div class="flex gap-4">
           <span class="text-zinc-600 shrink-0">[3]</span>
           <div>
-            <p class="text-zinc-200">Use the curated registry</p>
-            <p class="text-zinc-500">Skills are synced, reviewed, and stored in the autoskills registry instead of installed directly from upstream sources.</p>
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <span class="text-zinc-600 shrink-0">[4]</span>
-          <div>
-            <p class="text-zinc-200">Verify before writing</p>
-            <p class="text-zinc-500">Only the selected skill files are downloaded, checked against recorded SHA-256 hashes, and written locally.</p>
+            <p class="text-zinc-200">70+ device APIs</p>
+            <p class="text-zinc-500">Camera, sensors, GPS, SMS, notifications, clipboard, TTS, torch, WiFi, battery, and more — all from your terminal.</p>
           </div>
         </div>
       </div>
@@ -220,67 +153,22 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
     <!-- Separator -->
     <div class="mb-12 h-0.5 w-full bg-zinc-700"></div>
 
-    <!-- Options -->
+    <!-- API Commands Reference -->
     <div class="mb-12">
-      <p class="text-zinc-600 mb-6 uppercase tracking-widest text-xs">Options</p>
-      <div class="space-y-2">
-        <div class="flex gap-2">
-          <span class="text-cyan-400 w-40 shrink-0">-y, --yes</span>
-          <span class="text-zinc-500">Skip confirmation prompt</span>
-        </div>
-        <div class="flex gap-2">
-          <span class="text-cyan-400 w-40 shrink-0">--dry-run</span>
-          <span class="text-zinc-500">Show skills without installing</span>
-        </div>
-        <div class="flex gap-2">
-          <span class="text-cyan-400 w-40 shrink-0">-v, --verbose</span>
-          <span class="text-zinc-500">Show error details on failure</span>
-        </div>
-        <div class="flex gap-2">
-          <span class="text-cyan-400 w-40 shrink-0">-a, --agent</span>
-          <span class="text-zinc-500">Install for specific IDEs only (e.g. cursor, claude-code)</span>
-        </div>
-        <div class="flex gap-2">
-          <span class="text-cyan-400 w-40 shrink-0">-h, --help</span>
-          <span class="text-zinc-500">Show help message</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Separator -->
-    <div class="mb-12 h-0.5 w-full bg-zinc-700"></div>
-
-    <!-- Supported Technologies & Skills -->
-    <div class="mb-12">
-      <p class="text-zinc-600 mb-2 uppercase tracking-widest text-xs">Supported technologies & skills</p>
-      <p class="text-zinc-600 mb-6">Each technology auto-installs curated skills from the audited autoskills registry. Links open the original skill pages for context.</p>
+      <p class="text-zinc-600 mb-6 uppercase tracking-widest text-xs">API Commands Reference</p>
       <div class="space-y-0">
-        {skillsMap.map((tech) => (
+        {cmdGroups.map((group) => (
           <div class="group border-b border-zinc-800/40 py-2.5 first:border-t">
             <div class="flex items-start gap-3">
               <div class="flex items-center gap-2 w-32 shrink-0 pt-px">
-                {getIcon(tech.name) ? (
-                  <span class={`w-3.5 h-3.5 shrink-0 opacity-50 group-hover:opacity-100 transition-opacity [&>svg]:w-full [&>svg]:h-full`} set:html={getIcon(tech.name)} />
-                ) : (
-                  <span class="w-3.5 h-3.5 shrink-0"></span>
-                )}
-                <span class="text-zinc-300 group-hover:text-zinc-100 transition-colors text-xs">{tech.name}</span>
+                <span class="text-zinc-300 group-hover:text-zinc-100 transition-colors text-xs">{group.name}</span>
               </div>
               <div class="flex-1 min-w-0">
-                {tech.skills.length > 0 ? (
-                  <div class="flex flex-wrap gap-x-3 gap-y-0.5">
-                    {tech.skills.map((skill) => (
-                      <a
-                        href={skill.startsWith('http') ? skill : `https://skills.sh/${skill}`}
-                        target="_blank"
-                        rel="noopener"
-                        class="text-xs text-zinc-600 hover:text-cyan-400 transition-colors"
-                      >{skill.startsWith('http') ? new URL(skill).hostname + new URL(skill).pathname : skill.split('/').slice(2).join('/')}</a>
-                    ))}
-                  </div>
-                ) : (
-                  <span class="text-xs text-zinc-700 italic">no skills yet</span>
-                )}
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5">
+                  {group.commands.map((cmd) => (
+                    <span class="text-xs text-zinc-600">{cmd}</span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -294,53 +182,10 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
     <!-- Footer -->
     <footer class="text-zinc-600 space-y-4 pb-8">
       <p>
-        Made by <a href="https://midu.dev" target="_blank" rel="noopener" class="text-zinc-400 underline underline-offset-2 decoration-zinc-700 hover:decoration-zinc-400 transition-colors">midudev</a>{sponsors.length > 0 && ' with the support of'}
+        Based on <a href="https://github.com/NeverSight/learn-skills.dev" target="_blank" rel="noopener" class="text-zinc-400 underline underline-offset-2 decoration-zinc-700 hover:decoration-zinc-400 transition-colors">NeverSight termux-api skill</a>
       </p>
-
-      <div class="flex items-center -space-x-1.5">
-        {sponsors.map((s, i) => (
-          <a
-            href={`https://github.com/${s.login}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="sponsor-avatar relative hover:z-10"
-            style={`--i: ${i}`}
-          >
-            <img
-              src={`https://unavatar.io/github/${s.login}`}
-              alt={s.login}
-              width="32"
-              height="32"
-              class="size-8 rounded-full border-2 border-zinc-900 shadow-sm shadow-black/30"
-              loading="lazy"
-            />
-            <span class="sponsor-tip">@{s.login}</span>
-          </a>
-        ))}
-
-        <a
-          href="https://github.com/sponsors/midudev"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="relative hover:z-10 transition-transform hover:scale-110 flex items-center justify-center size-8 rounded-full border-2 border-dashed border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-zinc-500 hover:text-zinc-300"
-          title="Support this project"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
-        </a>
-      </div>
-
-      <a
-        href="https://github.com/sponsors/midudev"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-pink-400 transition-colors no-underline group"
-      >
-        <svg class="w-3.5 h-3 text-pink-600 group-hover:text-pink-400 transition-colors" viewBox="0 0 12 10" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M2 0h2v1H2zM8 0h2v1H8zM1 1h4v1H1zM7 1h4v1H7zM0 2h12v1H0zM1 3h10v1H1zM2 4h8v1H2zM3 5h6v1H3zM4 6h4v1H4zM5 7h2v1H5z"/></svg>
-        Support this project on GitHub Sponsors
-      </a>
-
       <p>
-        <a href="https://github.com/midudev/autoskills" target="_blank" rel="noopener" class="text-zinc-500 underline underline-offset-2 decoration-zinc-700 hover:decoration-zinc-400 hover:text-zinc-300 transition-colors">github</a>
+        <a href="https://github.com/itskreisler/termux-skill" target="_blank" rel="noopener" class="text-zinc-500 underline underline-offset-2 decoration-zinc-700 hover:decoration-zinc-400 hover:text-zinc-300 transition-colors">github</a>
       </p>
     </footer>
 
@@ -349,7 +194,7 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
   <script>
     // ── Copy button ───────────────────────────────────────────
     document.getElementById('copy-btn')?.addEventListener('click', async () => {
-      await navigator.clipboard.writeText('npx autoskills')
+      await navigator.clipboard.writeText('npx -y termux-skill')
       const btn = document.getElementById('copy-btn')
       if (btn) {
         btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`
@@ -361,28 +206,27 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
 
     document.getElementById('install-cmd')?.addEventListener('click', async (e) => {
       if ((e.target as HTMLElement).closest('#copy-btn')) return
-      await navigator.clipboard.writeText('npx autoskills')
+      await navigator.clipboard.writeText('npx -y termux-skill')
     })
 
     // ── ASCII logo animation ─────────────────────────────────
     {
       const LOGO_LINES = [
-        ' █████╗ ██╗   ██╗████████╗ ██████╗ ███████╗██╗  ██╗██╗██╗     ██╗     ███████╗',
-        '██╔══██╗██║   ██║╚══██╔══╝██╔═══██╗██╔════╝██║ ██╔╝██║██║     ██║     ██╔════╝',
-        '███████║██║   ██║   ██║   ██║   ██║███████╗█████╔╝ ██║██║     ██║     ███████╗',
-        '██╔══██║██║   ██║   ██║   ██║   ██║╚════██║██╔═██╗ ██║██║     ██║     ╚════██║',
-        '██║  ██║╚██████╔╝   ██║   ╚██████╔╝███████║██║  ██╗██║███████╗███████╗███████║',
-        '╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚══════╝',
+        ' ████████╗███████╗██████╗ ███╗   ███╗██╗   ██╗██╗  ██╗',
+        ' ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║   ██║██║ ██╔╝',
+        '    ██║   █████╗  ██████╔╝██╔████╔██║██║   ██║█████╔╝ ',
+        '    ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║   ██║██╔═██╗ ',
+        '    ██║   ███████╗██║  ██║██║ ╚═╝ ██║╚██████╔╝██║  ██╗',
+        '    ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝',
       ]
 
-      const START_COLOR = '#3f3f46'  // zinc-700 (gris clarito)
-      const END_COLOR = '#f4f4f5'    // zinc-100 (blanco)
+      const START_COLOR = '#3f3f46'
+      const END_COLOR = '#f4f4f5'
 
       const logo = document.getElementById('ascii-logo')!
       const cols = Math.max(...LOGO_LINES.map(l => l.length))
       const rows = LOGO_LINES.length
 
-      // Build grid
       const grid: HTMLSpanElement[][] = []
       for (const line of LOGO_LINES) {
         const row: HTMLSpanElement[] = []
@@ -400,7 +244,6 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
         grid.push(row)
       }
 
-      // Diagonal sweep: top-left to bottom-right, gray → white
       const maxDist = cols + rows
       const SPEED = 0.9
       let frame = 0
@@ -408,17 +251,14 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
 
       function animate() {
         const waveFront = frame * SPEED
-
         for (let r = 0; r < rows; r++) {
           for (let c = 0; c < grid[r].length; c++) {
             const dist = c + r * 3
             const progress = Math.max(0, Math.min(1, (waveFront - dist) / 10))
-
             const gray = Math.round(63 + progress * (244 - 63))
             grid[r][c].style.color = `rgb(${gray},${gray},${gray})`
           }
         }
-
         frame++
         if (frame <= totalFrames) {
           requestAnimationFrame(animate)
@@ -428,23 +268,22 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
               grid[r][c].style.color = END_COLOR
         }
       }
-
       requestAnimationFrame(animate)
     }
 
     // ── Terminal animation ────────────────────────────────────
     const C = {
-      z4: 'color:#a1a1aa',  // zinc-400
-      z5: 'color:#71717a',  // zinc-500
-      z6: 'color:#52525b',  // zinc-600
-      z7: 'color:#3f3f46',  // zinc-700
-      cy: 'color:#22d3ee',  // cyan-400
-      c3: 'color:#67e8f9',  // cyan-300
-      em: 'color:#34d399',  // emerald-400
-      wh: 'color:#f4f4f5',  // zinc-100
-      gn: 'color:#22c55e',  // green-500
-      yw: 'color:#facc15',  // yellow-400
-      pk: 'color:#f472b6',  // pink-400
+      z4: 'color:#a1a1aa',
+      z5: 'color:#71717a',
+      z6: 'color:#52525b',
+      z7: 'color:#3f3f46',
+      cy: 'color:#22d3ee',
+      c3: 'color:#67e8f9',
+      em: 'color:#34d399',
+      wh: 'color:#f4f4f5',
+      gn: 'color:#22c55e',
+      yw: 'color:#facc15',
+      pk: 'color:#f472b6',
     }
 
     function s(style: string, text: string) {
@@ -453,96 +292,58 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
 
     type Step = { html: string; delay: number; class?: string } | { type: 'char'; text: string; target: string; charDelay: number; delay: number }
 
-    const version = document.getElementById('terminal')?.dataset.version || '0.0.0'
-    const ver = `v${version}`
-    const bannerTitle = '   autoskills'
-    const bannerGap = ' '.repeat(Math.max(1, 39 - bannerTitle.length - ver.length - 3))
-
     const BANNER = [
       s(C.cy, '   ╔═══════════════════════════════════════╗'),
-      s(C.cy, '   ║') + s(C.yw, bannerTitle) + bannerGap + s(C.z6, ver) + '   ' + s(C.cy, '║'),
-      s(C.cy, '   ║') + s(C.z5, '   Auto-install the best AI skills     ') + s(C.cy, '║'),
-      s(C.cy, '   ║') + s(C.z5, '   for your project                    ') + s(C.cy, '║'),
+      s(C.cy, '   ║') + s(C.yw, '   termux-skill') + s(C.z6, '  v1.0.0') + '   ' + s(C.cy, '║'),
+      s(C.cy, '   ║') + s(C.z5, '   Termux API skill for AI agents     ') + s(C.cy, '║'),
+      s(C.cy, '   ║') + s(C.z5, '   Control Android via Termux API     ') + s(C.cy, '║'),
       s(C.cy, '   ╚═══════════════════════════════════════╝'),
     ]
 
-    const TECH_NAMES = ['Next.js', 'React', 'Tailwind CSS', 'TypeScript', 'Supabase', 'Astro']
-    const COL_WIDTH = Math.max(...TECH_NAMES.map(n => n.length)) + 3
-    const TECH_ROWS: string[] = []
-    for (let i = 0; i < TECH_NAMES.length; i += 3) {
-      const row = TECH_NAMES.slice(i, i + 3)
-        .map(n => s(C.gn, '✔') + ' ' + n.padEnd(COL_WIDTH))
-        .join('')
-      TECH_ROWS.push('     ' + row)
-    }
-
-    const SKILL_LIST = [
-      { skill: 'vercel-react-best-practices', source: 'React' },
-      { skill: 'vercel-composition-patterns', source: 'React' },
-      { skill: 'next-best-practices', source: 'Next.js' },
-      { skill: 'next-cache-components', source: 'Next.js' },
-      { skill: 'next-upgrade', source: 'Next.js' },
-      { skill: 'astro', source: 'Astro' },
-      { skill: 'tailwind-css-patterns', source: 'Tailwind CSS' },
-      { skill: 'typescript-advanced-types', source: 'TypeScript' },
-      { skill: 'react-hook-form-zod', source: 'React Hook Form + Zod' },
-      { skill: 'supabase-postgres-best-practices', source: 'Supabase' },
-      { skill: 'frontend-design', source: 'Frontend' },
+    const SKILL_CONTENT = [
+      { line: '## Environment Detection', style: C.wh },
+      { line: '', style: '' },
+      { line: '$ if command -v termux-battery-status &>/dev/null; then', style: C.z5 },
+      { line: '>   echo "Native Termux — binaries in PATH"', style: C.z6 },
+      { line: '$ elif [ -d /data/data/com.termux/files/usr/bin ]; then', style: C.z5 },
+      { line: '>   echo "proot-distro — /data/data/.../termux-*"', style: C.z6 },
+      { line: '$ else', style: C.z5 },
+      { line: '>   echo "No direct access — use SSH port 8022"', style: C.z6 },
+      { line: '$ fi', style: C.z5 },
+      { line: '', style: '' },
+      { line: '## API Commands', style: C.wh },
+      { line: '', style: '' },
+      { line: 'termux-battery-status        Battery info', style: C.z4 },
+      { line: 'termux-camera-photo          Take photo', style: C.z4 },
+      { line: 'termux-notification          Show notification', style: C.z4 },
+      { line: 'termux-location              Get GPS', style: C.z4 },
+      { line: 'termux-sms-send              Send SMS', style: C.z4 },
+      { line: 'termux-clipboard-get         Get clipboard', style: C.z4 },
+      { line: 'termux-tts-speak             Text to speech', style: C.z4 },
+      { line: 'termux-torch                 Toggle flashlight', style: C.z4 },
+      { line: 'termux-wifi-scaninfo         Scan WiFi', style: C.z4 },
+      { line: 'termux-sensor -l             List sensors', style: C.z4 },
+      { line: '', style: '' },
+      { line: '✔ Skill ready — 70+ APIs available', style: C.gn },
     ]
-
-    const maxSkillLen = Math.max(...SKILL_LIST.map(sk => sk.skill.length))
-    const SKILLS = SKILL_LIST.map((sk, i) => {
-      const num = String(i + 1).padStart(2, ' ')
-      const pad = ' '.repeat(maxSkillLen - sk.skill.length)
-      return s(C.z6, `   ${num}.`) + ' ' + s(C.c3, sk.skill) + pad + '  ' + s(C.z7, `← ${sk.source}`)
-    })
 
     function buildSteps(): Step[] {
       const steps: Step[] = []
       const d = (delay: number, html: string, cls?: string) =>
         steps.push({ html, delay, class: cls })
 
-      steps.push({ type: 'char', text: '$ npx autoskills', target: 'cmd-line', charDelay: 60, delay: 400 })
+      steps.push({ type: 'char', text: '$ npx -y termux-skill', target: 'cmd-line', charDelay: 60, delay: 400 })
 
-      // Banner
       d(500, '')
       for (const line of BANNER) d(30, line)
       d(0, '')
-
-      // Detected technologies
-      d(400, s(C.cy, '   ▸ ') + s(C.wh, 'Detected technologies:'))
+      d(400, s(C.cy, '   ▸ ') + s(C.wh, 'termux-skill: loaded'))
       d(200, '')
-      for (const row of TECH_ROWS) d(120, row)
-      d(0, '')
-
-      // Skills to install
-      d(400, s(C.cy, '   ▸ ') + s(C.wh, 'Skills to install ') + s(C.z6, `(${SKILL_LIST.length})`))
-      d(200, '')
-      for (const r of SKILLS) d(100, r)
-      d(0, '')
-
-      // Confirm prompt
-      d(400, '   Install ' + s(C.wh, String(SKILL_LIST.length)) + ' skills? ' + s(C.z6, '[Y/n]') + ' <span id="term-cursor" class="animate-pulse" style="' + C.z4 + '">▋</span>')
-      d(800, '__ANSWER_Y__')
-
-      // Installing
-      d(300, '')
-      d(0, s(C.cy, '   ▸ ') + s(C.wh, 'Verifying curated registry...'))
-      d(200, s(C.gn, '   ✔ ') + s(C.z5, 'manifest and hashes loaded'))
-      d(200, '')
-      d(0, s(C.cy, '   ▸ ') + s(C.wh, 'Installing skills...'))
-      d(200, '')
-      for (const sk of SKILL_LIST) {
-        d(0, '__SPINNER__' + sk.skill)
-        d(400 + Math.random() * 500, '__DONE__' + JSON.stringify(sk))
+      for (const item of SKILL_CONTENT) {
+        d(60, item.line)
       }
-
-      // Summary
       d(400, '')
-      d(0, s(C.gn, `   ✔ Done! ${SKILL_LIST.length} skills installed in 3.2s.`))
-      d(200, '')
-      d(0, s(C.pk, '   Enjoyed autoskills? Consider sponsoring → https://github.com/sponsors/midudev'))
-      d(0, '')
+      d(0, s(C.pk, '   Run npx -y termux-skill to get this skill in your terminal'))
 
       return steps
     }
@@ -572,45 +373,12 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
             line.innerHTML = colored + cursor
             await sleep(step.charDelay)
           }
-          line.innerHTML = '<span style="' + C.z6 + '">$ </span><span style="' + C.z4 + '">npx autoskills</span>'
+          line.innerHTML = '<span style="' + C.z6 + '">$ </span><span style="' + C.z4 + '">npx -y termux-skill</span>'
           await sleep(step.delay)
           continue
         }
 
         const { html, delay } = step as { html: string; delay: number; class?: string }
-
-        // Special: answer Y
-        if (html === '__ANSWER_Y__') {
-          const cursor = document.getElementById('term-cursor')
-          if (cursor) cursor.outerHTML = s(C.wh, 'Y')
-          await sleep(delay)
-          continue
-        }
-
-        // Special: spinner
-        if (html.startsWith('__SPINNER__')) {
-          const skill = html.replace('__SPINNER__', '')
-          const line = document.createElement('p')
-          line.id = 'install-line'
-          line.innerHTML = s(C.z6, '   ◌ ') + s(C.z5, skill + '...')
-          body.appendChild(line)
-          body.scrollTop = body.scrollHeight
-          await sleep(delay)
-          continue
-        }
-
-        // Special: done
-        if (html.startsWith('__DONE__')) {
-          const inst = JSON.parse(html.replace('__DONE__', ''))
-          const line = document.getElementById('install-line')
-          if (line) {
-            line.innerHTML = s(C.em, '   ✔ ' + inst.skill)
-            line.removeAttribute('id')
-          }
-          body.scrollTop = body.scrollHeight
-          await sleep(delay)
-          continue
-        }
 
         const line = document.createElement('p')
         line.innerHTML = html || '&nbsp;'
@@ -621,7 +389,6 @@ const skillsMap = [...SKILLS_MAP].sort((a: any, b: any) => {
       }
     }
 
-    // Desktop: start immediately. Mobile: start when terminal scrolls into view.
     const terminal = document.getElementById('terminal')
     const isDesktop = window.matchMedia('(min-width: 1024px)').matches
 

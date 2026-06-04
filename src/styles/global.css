@@ -41,35 +41,3 @@
 *:hover::-webkit-scrollbar-thumb:hover {
   background: #3f3f46;
 }
-
-.sponsor-avatar {
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.sponsor-avatar:hover {
-  transform: scale(1.25) rotate(calc((var(--i) - 4) * 1.2deg));
-}
-
-.sponsor-tip {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  translate: -50% 4px;
-  padding: 3px 8px;
-  background: #27272a;
-  color: #e4e4e7;
-  font-size: 0.625rem;
-  font-weight: 500;
-  border-radius: 6px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    opacity 0.15s ease,
-    translate 0.15s ease;
-}
-
-.sponsor-avatar:hover .sponsor-tip {
-  opacity: 1;
-  translate: -50% 0;
-}

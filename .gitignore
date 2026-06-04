@@ -27,3 +27,9 @@ pnpm-debug.log*
 .agents/
 .claude/
 skills-lock.json
+
+# opencode config
+.opencode/
+
+# codex
+.codex/
