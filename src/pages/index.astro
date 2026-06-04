@@ -179,6 +179,58 @@ const cmdGroups = [
     <!-- Separator -->
     <div class="mb-12 h-0.5 w-full bg-zinc-700"></div>
 
+    <!-- Patterns -->
+    <div class="mb-12">
+      <p class="text-zinc-600 mb-6 uppercase tracking-widest text-xs">Command Patterns</p>
+      <div class="space-y-4 text-xs">
+        <div class="flex gap-4">
+          <span class="text-zinc-600 shrink-0">[1]</span>
+          <div>
+            <p class="text-zinc-200">Interactive notification with buttons</p>
+            <p class="text-zinc-500 mt-1"><kbd class="text-zinc-400 bg-zinc-900 border border-zinc-800 px-1 py-0.5 rounded font-mono">termux-notification --button1 "Action" --button1-action "cmd"</kbd></p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <span class="text-zinc-600 shrink-0">[2]</span>
+          <div>
+            <p class="text-zinc-200">Take photo and share</p>
+            <p class="text-zinc-500 mt-1"><kbd class="text-zinc-400 bg-zinc-900 border border-zinc-800 px-1 py-0.5 rounded font-mono">termux-camera-photo -c 0 photo.jpg && termux-share -a send photo.jpg</kbd></p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <span class="text-zinc-600 shrink-0">[3]</span>
+          <div>
+            <p class="text-zinc-200">Battery monitor loop</p>
+            <p class="text-zinc-500 mt-1"><kbd class="text-zinc-400 bg-zinc-900 border border-zinc-800 px-1 py-0.5 rounded font-mono">watch -n 60 termux-battery-status</kbd></p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <span class="text-zinc-600 shrink-0">[4]</span>
+          <div>
+            <p class="text-zinc-200">Get location and notify</p>
+            <p class="text-zinc-500 mt-1"><kbd class="text-zinc-400 bg-zinc-900 border border-zinc-800 px-1 py-0.5 rounded font-mono">termux-location -p network | jq '.latitude, .longitude' | termux-notification -t "Location" -c "@-"</kbd></p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <span class="text-zinc-600 shrink-0">[5]</span>
+          <div>
+            <p class="text-zinc-200">Flash alert on low battery</p>
+            <p class="text-zinc-500 mt-1"><kbd class="text-zinc-400 bg-zinc-900 border border-zinc-800 px-1 py-0.5 rounded font-mono">termux-battery-status | jq '.percentage' | xargs -I{} sh -c '[ {} -lt 20 ] &amp;&amp; termux-torch on &amp;&amp; sleep 0.5 &amp;&amp; termux-torch off'</kbd></p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <span class="text-zinc-600 shrink-0">[6]</span>
+          <div>
+            <p class="text-zinc-200">URL/file opener handler</p>
+            <p class="text-zinc-500 mt-1"><kbd class="text-zinc-400 bg-zinc-900 border border-zinc-800 px-1 py-0.5 rounded font-mono">~/bin/termux-url-opener</kbd> <span class="text-zinc-600">and</span> <kbd class="text-zinc-400 bg-zinc-900 border border-zinc-800 px-1 py-0.5 rounded font-mono">~/bin/termux-file-editor</kbd></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Separator -->
+    <div class="mb-12 h-0.5 w-full bg-zinc-700"></div>
+
     <!-- Footer -->
     <footer class="text-zinc-600 space-y-6 pb-8">
       <div class="space-y-2">
