@@ -2,9 +2,6 @@
 import Layout from '../layouts/Layout.astro';
 import '../styles/global.css';
 
-import pkg from '../../packages/termux-skill/package.json';
-const CLI_VERSION = pkg.version;
-
 const cmdGroups = [
   {
     name: 'Device Info',
@@ -183,10 +180,30 @@ const cmdGroups = [
     <div class="mb-12 h-0.5 w-full bg-zinc-700"></div>
 
     <!-- Footer -->
-    <footer class="text-zinc-600 space-y-4 pb-8">
-      <p>
-        Based on <a href="https://github.com/NeverSight/learn-skills.dev" target="_blank" rel="noopener" class="text-zinc-400 underline underline-offset-2 decoration-zinc-700 hover:decoration-zinc-400 transition-colors">NeverSight termux-api skill</a>
-      </p>
+    <footer class="text-zinc-600 space-y-6 pb-8">
+      <div class="space-y-2">
+        <p class="text-zinc-500 uppercase tracking-widest text-xs">Flags</p>
+        <div class="flex flex-wrap gap-x-8 gap-y-1 text-xs">
+          <span class="text-zinc-500">termux-skill</span>
+          <span class="text-zinc-600">Install or update</span>
+        </div>
+        <div class="flex flex-wrap gap-x-8 gap-y-1 text-xs">
+          <span class="text-zinc-500">--update</span>
+          <span class="text-zinc-600">Force reinstall</span>
+        </div>
+        <div class="flex flex-wrap gap-x-8 gap-y-1 text-xs">
+          <span class="text-zinc-500">--uninstall</span>
+          <span class="text-zinc-600">Remove skill from all agents</span>
+        </div>
+        <div class="flex flex-wrap gap-x-8 gap-y-1 text-xs">
+          <span class="text-zinc-500">--version / -v</span>
+          <span class="text-zinc-600">Show version</span>
+        </div>
+        <div class="flex flex-wrap gap-x-8 gap-y-1 text-xs">
+          <span class="text-zinc-500">--help / -h</span>
+          <span class="text-zinc-600">Show help</span>
+        </div>
+      </div>
       <p>
         <a href="https://github.com/itskreisler/termux-skill" target="_blank" rel="noopener" class="text-zinc-500 underline underline-offset-2 decoration-zinc-700 hover:decoration-zinc-400 hover:text-zinc-300 transition-colors">github</a>
       </p>
@@ -194,7 +211,7 @@ const cmdGroups = [
 
   </main>
 
-  <script define:vars={{ CLI_VERSION }}>
+  <script>
     // ── Copy button ───────────────────────────────────────────
     document.getElementById('copy-btn')?.addEventListener('click', async () => {
       await navigator.clipboard.writeText('npx -y termux-skill')
@@ -297,7 +314,7 @@ const cmdGroups = [
 
     const BANNER = [
       s(C.cy, '   ╔═══════════════════════════════════════╗'),
-      s(C.cy, '   ║') + s(C.yw, '   termux-skill') + s(C.z6, '  v' + CLI_VERSION) + '   ' + s(C.cy, '║'),
+      s(C.cy, '   ║') + s(C.yw, '   termux-skill') + s(C.z6, '  v1.0.4') + '   ' + s(C.cy, '║'),
       s(C.cy, '   ║') + s(C.z5, '   Termux API skill for AI agents     ') + s(C.cy, '║'),
       s(C.cy, '   ║') + s(C.z5, '   Control Android via Termux API     ') + s(C.cy, '║'),
       s(C.cy, '   ╚═══════════════════════════════════════╝'),
