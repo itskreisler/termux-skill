@@ -260,3 +260,78 @@ ls -la /data/data/com.termux/files/usr/bin/termux-* 2>/dev/null || echo "Not in 
 1. In Termux: `pkg install openssh && sshd`
 2. SSH runs on port 8022 by default
 3. Set password with `passwd` or add SSH key to `~/.ssh/authorized_keys`
+
+## Command Combinations
+
+### Interactive notification with buttons
+
+```bash
+NOTIF_ID=12345
+PREFIX=/data/data/com.termux/files/usr
+
+$PREFIX/bin/termux-notification \
+  --id $NOTIF_ID \
+  --title "Download Music" \
+  --content "Choose source:" \
+  --button1 "YouTube" \
+  --button1-action "sh -c 'am startservice --user 0 \
+    -n com.termux/com.termux.app.RunCommandService \
+    -a com.termux.RUN_COMMAND \
+    --es com.termux.RUN_COMMAND_PATH $HOME/scripts/yt-dlp.sh \
+    --es com.termux.RUN_COMMAND_WORKDIR $HOME \
+    --ez com.termux.RUN_COMMAND_BACKGROUND false \
+    --es com.termux.RUN_COMMAND_SESSION_ACTION 0'" \
+  --button2 "Spotify" \
+  --button2-action "sh -c 'am startservice --user 0 \
+    -n com.termux/com.termux.app.RunCommandService \
+    -a com.termux.RUN_COMMAND \
+    --es com.termux.RUN_COMMAND_PATH $HOME/scripts/zotify-download.sh \
+    --es com.termux.RUN_COMMAND_WORKDIR $HOME \
+    --ez com.termux.RUN_COMMAND_BACKGROUND false \
+    --es com.termux.RUN_COMMAND_SESSION_ACTION 0'" \
+  --button3 "Close" \
+  --button3-action "$PREFIX/bin/termux-notification-remove $NOTIF_ID" \
+  --ongoing
+```
+
+### Battery monitor
+
+```bash
+while true; do
+  clear
+  termux-exec termux-battery-status | jq '.percentage, .status, .temperature'
+  sleep 60
+done
+```
+
+### Take photo and share
+
+```bash
+PHOTO=~/photo_$(date +%s).jpg
+termux-exec termux-camera-photo -c 0 "$PHOTO"
+termux-exec termux-share -a send "$PHOTO"
+```
+
+### Get location and notify
+
+```bash
+LOC=$(termux-exec termux-location -p network | jq -r '.latitude, .longitude')
+LAT=$(echo "$LOC" | head -1)
+LON=$(echo "$LOC" | tail -1)
+termux-exec termux-notification -t "Location" -c "$LAT, $LON" --id loc
+```
+
+### Flash alert on low battery
+
+```bash
+LEVEL=$(termux-exec termux-battery-status | jq '.percentage')
+if [ "$LEVEL" -lt 20 ]; then
+  for i in 1 2 3; do
+    termux-exec termux-torch on
+    sleep 0.5
+    termux-exec termux-torch off
+    sleep 0.5
+  done
+  termux-exec termux-notification -t "Battery Low" -c "$LEVEL% remaining"
+fi
+```
