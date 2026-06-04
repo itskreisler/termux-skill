@@ -2,6 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import '../styles/global.css';
 
+import pkg from '../../packages/termux-skill/package.json';
+const CLI_VERSION = pkg.version;
+
 const cmdGroups = [
   {
     name: 'Device Info',
@@ -191,7 +194,7 @@ const cmdGroups = [
 
   </main>
 
-  <script>
+  <script define:vars={{ CLI_VERSION }}>
     // ── Copy button ───────────────────────────────────────────
     document.getElementById('copy-btn')?.addEventListener('click', async () => {
       await navigator.clipboard.writeText('npx -y termux-skill')
@@ -294,7 +297,7 @@ const cmdGroups = [
 
     const BANNER = [
       s(C.cy, '   ╔═══════════════════════════════════════╗'),
-      s(C.cy, '   ║') + s(C.yw, '   termux-skill') + s(C.z6, '  v1.0.0') + '   ' + s(C.cy, '║'),
+      s(C.cy, '   ║') + s(C.yw, '   termux-skill') + s(C.z6, '  v' + CLI_VERSION) + '   ' + s(C.cy, '║'),
       s(C.cy, '   ║') + s(C.z5, '   Termux API skill for AI agents     ') + s(C.cy, '║'),
       s(C.cy, '   ║') + s(C.z5, '   Control Android via Termux API     ') + s(C.cy, '║'),
       s(C.cy, '   ╚═══════════════════════════════════════╝'),
