@@ -9,7 +9,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const SKILL_SOURCE = join(__dirname, "termux-SKILL.md");
 const SKILL_ID = "termux-api";
 const SKILL_FILENAME = "SKILL.md";
-const VERSION = "1.0.0";
+const PKG = JSON.parse(readFileSync(join(__dirname, "package.json"), "utf-8"));
+const VERSION = PKG.version;
 
 const AGENT_PATHS = [
   { name: "OpenCode / Copilot (universal)", path: ".agents/skills" },

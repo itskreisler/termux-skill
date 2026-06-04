@@ -1,8 +1,16 @@
 {
   "name": "termux-skill",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Termux API skill — control Android devices via Termux API. Auto-detects direct access (Termux/proot-distro) or falls back to SSH.",
-  "keywords": ["termux", "android", "api", "skill", "cli", "opencode", "claude"],
+  "keywords": [
+    "termux",
+    "android",
+    "api",
+    "skill",
+    "cli",
+    "opencode",
+    "claude"
+  ],
   "homepage": "https://github.com/itskreisler/termux-skill#readme",
   "license": "CC-BY-NC-4.0",
   "author": "itskreisler",
