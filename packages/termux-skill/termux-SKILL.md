@@ -187,6 +187,63 @@ ssh -p 8022 <device-ip> '<termux-api-command>'
 | `termux-download <url>` | Download file |
 | `termux-storage-get <dest>` | Pick file from storage |
 
+### Biometrics & Security
+| Command | Description |
+|---------|-------------|
+| `termux-fingerprint` | Authenticate with biometric sensor |
+| `termux-keystore` | Access Android Keystore |
+| `termux-usb` | List and interact with USB devices |
+
+### NFC & Infrared
+| Command | Description |
+|---------|-------------|
+| `termux-nfc` | Read NFC tags |
+| `termux-infrared-frequencies` | List IR carrier frequencies |
+| `termux-infrared-transmit` | Transmit IR signal |
+
+### Audio & Speech
+| Command | Description |
+|---------|-------------|
+| `termux-speech-to-text` | Voice recognition (requires permission) |
+| `termux-media-scan` | Scan media files (e.g. after download) |
+
+### Notifications (advanced)
+| Command | Description |
+|---------|-------------|
+| `termux-notification-channel` | Create/manage notification channels (Android 8+) |
+| `termux-notification-list` | List active notifications |
+
+### SMS
+| Command | Description |
+|---------|-------------|
+| `termux-sms-inbox` | Read SMS inbox messages |
+
+### WiFi
+| Command | Description |
+|---------|-------------|
+| `termux-wifi-enable <true/false>` | Enable or disable WiFi |
+
+### Storage Access Framework (SAF)
+| Command | Description |
+|---------|-------------|
+| `termux-saf-create <uri>` | Create a document in SAF tree |
+| `termux-saf-dirs <uri>` | List directories in SAF tree |
+| `termux-saf-ls <uri>` | List files in SAF tree |
+| `termux-saf-managedir <uri>` | Create directory in SAF tree |
+| `termux-saf-mkdir <uri>` | Create directory in SAF tree |
+| `termux-saf-read <uri>` | Read file content from SAF tree |
+| `termux-saf-rm <uri>` | Delete file from SAF tree |
+| `termux-saf-stat <uri>` | Get file info from SAF tree |
+| `termux-saf-write <uri>` | Write to file in SAF tree |
+
+### Scheduling & Device Control
+| Command | Description |
+|---------|-------------|
+| `termux-job-scheduler` | Schedule background tasks |
+| `termux-api-start` | Start Termux:API service |
+| `termux-api-stop` | Stop Termux:API service |
+| `termux-reload-settings` | Reload Termux settings |
+
 ## Common Patterns
 
 ### Using the helper (auto-detect)
