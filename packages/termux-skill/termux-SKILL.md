@@ -40,7 +40,7 @@ Before running commands, check if direct access is available:
 # proot-distro:    binaries at /data/data/com.termux/files/usr/bin/
 # Remote:          must use SSH
 
-if command -v termux-battery-status &>/dev/null; then
+if command -v termux-battery-status &>/dev/null && [ -n "${TERMUX_VERSION-}" ]; then
   echo "Native Termux — binaries directly available in PATH"
   TERMUX_PREFIX=""
 elif [ -d /data/data/com.termux/files/usr/bin ] && ls /data/data/com.termux/files/usr/bin/termux-* &>/dev/null 2>&1; then
@@ -55,12 +55,13 @@ fi
 ```bash
 # Helper function: auto-detect and run any termux command
 termux-exec() {
-  if command -v "${1%% *}" &>/dev/null 2>&1; then
-    "$@"
-  elif [ -x /data/data/com.termux/files/usr/bin/"$1" ]; then
-    /data/data/com.termux/files/usr/bin/"$@"
+  local cmd=$1; shift
+  if command -v "$cmd" &>/dev/null 2>&1; then
+    "$cmd" "$@"
+  elif [ -x /data/data/com.termux/files/usr/bin/"$cmd" ]; then
+    /data/data/com.termux/files/usr/bin/"$cmd" "$@"
   else
-    ssh -p 8022 <device-ip> "$*"
+    ssh -p 8022 <device-ip> "$cmd $*"
   fi
 }
 ```
@@ -192,12 +193,13 @@ ssh -p 8022 <device-ip> '<termux-api-command>'
 ```bash
 # Reusable helper — works in Termux nativo, proot-distro, y remoto
 termux-exec() {
-  if command -v "${1%% *}" &>/dev/null 2>&1; then
-    "$@"                              # nativo
-  elif [ -x /data/data/com.termux/files/usr/bin/"$1" ]; then
-    /data/data/com.termux/files/usr/bin/"$@"  # proot
+  local cmd=$1; shift
+  if command -v "$cmd" &>/dev/null 2>&1; then
+    "$cmd" "$@"                       # nativo
+  elif [ -x /data/data/com.termux/files/usr/bin/"$cmd" ]; then
+    /data/data/com.termux/files/usr/bin/"$cmd" "$@"  # proot
   else
-    ssh -p 8022 <ip> "$*"             # remoto
+    ssh -p 8022 <ip> "$cmd $*"        # remoto
   fi
 }
 
