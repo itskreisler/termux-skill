@@ -18,7 +18,8 @@
   },
   "files": [
     "index.mjs",
-    "termux-SKILL.md"
+    "termux-SKILL.md",
+    "README.md"
   ],
   "type": "module",
   "engines": {
