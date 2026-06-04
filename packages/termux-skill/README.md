@@ -18,10 +18,18 @@ Installs a `SKILL.md` in `.agents/skills/termux-api/` (and other agent directori
 ## Usage
 
 ```bash
+# Install (or update if hash changed)
 npx -y termux-skill
-```
 
-Re-run to update. Use `--force` to overwrite existing installations.
+# Force reinstall
+npx termux-skill --update
+
+# Remove skill and clean up
+npx termux-skill --uninstall
+
+# Show help
+npx termux-skill --help
+```
 
 ## API examples
 
