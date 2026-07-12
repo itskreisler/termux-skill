@@ -66,6 +66,50 @@ termux_exec() {
   fi
 }
 
+# List all available termux-* commands on this device
+termux_list() {
+  local bin_dir="${TERMUX_PREFIX:+$TERMUX_PREFIX/}"
+  local cmds=()
+
+  # Native or proot: scan filesystem
+  if [ "$TERMUX_ENV" != "ssh" ]; then
+    for f in "${bin_dir}"termux-*; do
+      [ -x "$f" ] && cmds+=("$(basename "$f")")
+    done
+  else
+    # SSH: ask remote
+    cmds=($(ssh -p "$TERMUX_SSH_PORT" "$TERMUX_SSH_HOST" 'compgen -c termux-' 2>/dev/null))
+  fi
+
+  if [ ${#cmds[@]} -eq 0 ]; then
+    echo "No termux-* commands found." >&2
+    return 1
+  fi
+
+  printf '%s\n' "${cmds[@]}" | sort
+}
+
+# Quick help for a termux command
+termux_help() {
+  local cmd=$1
+  if [ -z "$cmd" ]; then
+    echo "Usage: termux_help <command>" >&2
+    echo "Example: termux_help termux-notification" >&2
+    return 1
+  fi
+
+  # Try --help flag
+  local output
+  output=$(termux_exec "$cmd" --help 2>&1)
+  if [ $? -eq 0 ] && [ -n "$output" ]; then
+    echo "$output"
+  else
+    # Fallback: show man page or usage hint
+    echo "No --help available for $cmd"
+    echo "Try: termux_exec $cmd (with appropriate args)"
+  fi
+}
+
 # Auto-detect if not loaded from source (i.e., executed directly)
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   detect_termux_env
@@ -78,6 +122,9 @@ else
   fi
 fi
 
+# Sync PREFIX → TERMUX_PREFIX for consistency
+: "${TERMUX_PREFIX:=$PREFIX}"
+
 # Export everything for subshells
-export -f termux_exec 2>/dev/null
-export TERMUX_ENV PREFIX SSH_HOST SSH_PORT
+export -f termux_exec termux_list termux_help 2>/dev/null
+export TERMUX_ENV TERMUX_PREFIX SSH_HOST SSH_PORT

@@ -7,9 +7,12 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SKILL_SOURCE = join(__dirname, "termux-SKILL.md");
+const QUICKREF_SOURCE = join(__dirname, "termux-QUICK-REF.md");
 const STATE_SOURCE = join(__dirname, "termux-state.sh");
 const SKILL_ID = "termux-api";
+const QUICKREF_ID = "termux-quick-ref";
 const SKILL_FILENAME = "SKILL.md";
+const QUICKREF_FILENAME = "SKILL.md";
 const STATE_FILENAME = "termux-state.sh";
 const PKG = JSON.parse(readFileSync(join(__dirname, "package.json"), "utf-8"));
 const VERSION = PKG.version;
@@ -82,10 +85,15 @@ if (uninstall) {
   let removed = 0;
   for (const agent of AGENT_PATHS) {
     const targetDir = resolve(cwd, agent.path, SKILL_ID);
+    const quickrefDir = resolve(cwd, agent.path, QUICKREF_ID);
     if (existsSync(targetDir)) {
       rmSync(targetDir, { recursive: true, force: true });
-      console.log(`  \x1b[32m✔\x1b[0m Removed for \x1b[37m${agent.name}\x1b[0m`);
+      console.log(`  \x1b[32m✔\x1b[0m Removed \x1b[37m${agent.name}\x1b[0m (termux-api)`);
       removed++;
+    }
+    if (existsSync(quickrefDir)) {
+      rmSync(quickrefDir, { recursive: true, force: true });
+      console.log(`  \x1b[32m✔\x1b[0m Removed \x1b[37m${agent.name}\x1b[0m (termux-quick-ref)`);
     }
   }
 
@@ -147,10 +155,13 @@ let installed = 0;
 const installedPaths = [];
 
 const stateContent = readFileSync(STATE_SOURCE, "utf-8");
+const quickrefContent = readFileSync(QUICKREF_SOURCE, "utf-8");
 
 for (const agent of AGENT_PATHS) {
   const targetDir = resolve(cwd, agent.path, SKILL_ID);
+  const quickrefDir = resolve(cwd, agent.path, QUICKREF_ID);
   const targetFile = join(targetDir, SKILL_FILENAME);
+  const quickrefFile = join(quickrefDir, QUICKREF_FILENAME);
   const stateFile = join(targetDir, STATE_FILENAME);
 
   try {
@@ -159,10 +170,13 @@ for (const agent of AGENT_PATHS) {
       continue;
     }
     mkdirSync(targetDir, { recursive: true });
+    mkdirSync(quickrefDir, { recursive: true });
     writeFileSync(targetFile, skillContent, "utf-8");
+    writeFileSync(quickrefFile, quickrefContent, "utf-8");
     writeFileSync(stateFile, stateContent, { mode: 0o755, encoding: "utf-8" });
     console.log(`  \x1b[32m✔\x1b[0m ${update ? "Updated" : "Installed"} for \x1b[37m${agent.name}\x1b[0m`);
     console.log(`    \x1b[90m${targetFile}\x1b[0m`);
+    console.log(`    \x1b[90m${quickrefFile}\x1b[0m`);
     console.log(`    \x1b[90m${stateFile}\x1b[0m`);
     installed++;
     installedPaths.push(agent.path);

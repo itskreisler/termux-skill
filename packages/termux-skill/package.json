@@ -1,7 +1,7 @@
 {
   "name": "termux-skill",
-  "version": "1.1.2",
-  "description": "Termux API skill — control Android devices via Termux API. Auto-detects direct access (Termux/proot-distro) or falls back to SSH. Survives AI context compaction with persistent state.",
+  "version": "1.2.0",
+  "description": "Termux API skill — control Android devices via Termux API. Auto-detects direct access (Termux/proot-distro) or falls back to SSH. Anti-compaction with persistent state. Includes quick-ref for top 15 commands.",
   "keywords": [
     "termux",
     "android",
@@ -27,6 +27,7 @@
   "files": [
     "index.mjs",
     "termux-SKILL.md",
+    "termux-QUICK-REF.md",
     "termux-state.sh",
     "README.md"
   ],
