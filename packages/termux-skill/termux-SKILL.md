@@ -83,11 +83,13 @@ source termux-state.sh
 ### Subsequent runs — load saved state
 
 ```bash
-# Quick recovery after compaction — re-source saved state
-[ -f ~/.termux-skill-state ] && source ~/.termux-skill-state
+# Quick recovery after compaction — re-source the script (loads state + function)
+source termux-state.sh
 echo "ENV=$TERMUX_ENV PREFIX=$TERMUX_PREFIX"
 # ENV=proot PREFIX=/data/data/com.termux/files/usr/bin
 ```
+
+> **Note:** `source ~/.termux-skill-state` alone only loads variables, not the `termux_exec` function. Always source `termux-state.sh` for full recovery.
 
 ### Using termux_exec (recommended)
 
