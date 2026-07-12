@@ -70,13 +70,14 @@ termux_exec() {
 if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
   detect_termux_env
   save_state
-  # Also export for subshells
-  export TERMUX_ENV PREFIX SSH_HOST SSH_PORT
 else
   # Sourced — try load first, detect if missing
   if ! load_state; then
     detect_termux_env
     save_state
   fi
-  export TERMUX_ENV PREFIX SSH_HOST SSH_PORT
 fi
+
+# Export everything for subshells
+export -f termux_exec 2>/dev/null
+export TERMUX_ENV PREFIX SSH_HOST SSH_PORT

@@ -54,7 +54,7 @@ fi
 
 ```bash
 # Helper function: auto-detect and run any termux command
-termux-exec() {
+termux_exec() {
   local cmd=$1; shift
   if command -v "$cmd" &>/dev/null 2>&1; then
     "$cmd" "$@"
@@ -89,17 +89,17 @@ echo "ENV=$TERMUX_ENV PREFIX=$TERMUX_PREFIX"
 # ENV=proot PREFIX=/data/data/com.termux/files/usr/bin
 ```
 
-### Using termux-exec (recommended)
+### Using termux_exec (recommended)
 
-The `termux-exec` function from `termux-state.sh` handles all environments automatically:
+The `termux_exec` function from `termux-state.sh` handles all environments automatically:
 
 ```bash
 source termux-state.sh
 
 # Works regardless of environment — no need to remember paths
-termux-exec termux-battery-status
-termux-exec termux-notification -t "Alert" -c "Still alive"
-termux-exec termux-camera-photo -c 1 ~/selfie.jpg
+termux_exec termux-battery-status
+termux_exec termux-notification -t "Alert" -c "Still alive"
+termux_exec termux-camera-photo -c 1 ~/selfie.jpg
 ```
 
 ### State file location
@@ -302,7 +302,7 @@ ssh -p 8022 <device-ip> '<termux-api-command>'
 ### Using the helper (auto-detect)
 ```bash
 # Reusable helper — works in Termux nativo, proot-distro, y remoto
-termux-exec() {
+termux_exec() {
   local cmd=$1; shift
   if command -v "$cmd" &>/dev/null 2>&1; then
     "$cmd" "$@"                       # nativo
@@ -314,11 +314,11 @@ termux-exec() {
 }
 
 # Usage examples
-termux-exec termux-battery-status
-termux-exec termux-notification -t "Alert" -c "Task complete"
-termux-exec termux-camera-photo -c 1 ~/selfie.jpg
-termux-exec termux-location -p network
-termux-exec termux-battery-status | jq '.percentage, .status'
+termux_exec termux-battery-status
+termux_exec termux-notification -t "Alert" -c "Task complete"
+termux_exec termux-camera-photo -c 1 ~/selfie.jpg
+termux_exec termux-location -p network
+termux_exec termux-battery-status | jq '.percentage, .status'
 ```
 
 ### Take a selfie
@@ -336,17 +336,17 @@ scp -P 8022 <ip>:~/selfie.jpg /local/path/
 
 ### Send notification with action
 ```bash
-termux-exec termux-notification -t "Alert" -c "Task complete" --id myalert --vibrate 200,100,200
+termux_exec termux-notification -t "Alert" -c "Task complete" --id myalert --vibrate 200,100,200
 ```
 
 ### Get device location
 ```bash
-termux-exec termux-location -p network
+termux_exec termux-location -p network
 ```
 
 ### Monitor battery
 ```bash
-termux-exec termux-battery-status | jq '.percentage, .status'
+termux_exec termux-battery-status | jq '.percentage, .status'
 ```
 
 ## Troubleshooting
@@ -409,7 +409,7 @@ $PREFIX/bin/termux-notification \
 ```bash
 while true; do
   clear
-  termux-exec termux-battery-status | jq '.percentage, .status, .temperature'
+  termux_exec termux-battery-status | jq '.percentage, .status, .temperature'
   sleep 60
 done
 ```
@@ -418,31 +418,31 @@ done
 
 ```bash
 PHOTO=~/photo_$(date +%s).jpg
-termux-exec termux-camera-photo -c 0 "$PHOTO"
-termux-exec termux-share -a send "$PHOTO"
+termux_exec termux-camera-photo -c 0 "$PHOTO"
+termux_exec termux-share -a send "$PHOTO"
 ```
 
 ### Get location and notify
 
 ```bash
-LOC=$(termux-exec termux-location -p network | jq -r '.latitude, .longitude')
+LOC=$(termux_exec termux-location -p network | jq -r '.latitude, .longitude')
 LAT=$(echo "$LOC" | head -1)
 LON=$(echo "$LOC" | tail -1)
-termux-exec termux-notification -t "Location" -c "$LAT, $LON" --id loc
+termux_exec termux-notification -t "Location" -c "$LAT, $LON" --id loc
 ```
 
 ### Flash alert on low battery
 
 ```bash
-LEVEL=$(termux-exec termux-battery-status | jq '.percentage')
+LEVEL=$(termux_exec termux-battery-status | jq '.percentage')
 if [ "$LEVEL" -lt 20 ]; then
   for i in 1 2 3; do
-    termux-exec termux-torch on
+    termux_exec termux-torch on
     sleep 0.5
-    termux-exec termux-torch off
+    termux_exec termux-torch off
     sleep 0.5
   done
-  termux-exec termux-notification -t "Battery Low" -c "$LEVEL% remaining"
+  termux_exec termux-notification -t "Battery Low" -c "$LEVEL% remaining"
 fi
 ```
 
