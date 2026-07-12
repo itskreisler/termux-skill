@@ -7,8 +7,10 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SKILL_SOURCE = join(__dirname, "termux-SKILL.md");
+const STATE_SOURCE = join(__dirname, "termux-state.sh");
 const SKILL_ID = "termux-api";
 const SKILL_FILENAME = "SKILL.md";
+const STATE_FILENAME = "termux-state.sh";
 const PKG = JSON.parse(readFileSync(join(__dirname, "package.json"), "utf-8"));
 const VERSION = PKG.version;
 
@@ -87,6 +89,13 @@ if (uninstall) {
     }
   }
 
+  // Clean state file
+  const statePath = join(cwd, ".termux-skill-state");
+  if (existsSync(statePath)) {
+    rmSync(statePath, { force: true });
+    console.log(`  \x1b[32m✔\x1b[0m Removed \x1b[90m.termux-skill-state\x1b[0m`);
+  }
+
   // Clean lockfile
   if (existing) {
     delete lock[SKILL_ID];
@@ -137,9 +146,12 @@ if (existing && !update && !force) {
 let installed = 0;
 const installedPaths = [];
 
+const stateContent = readFileSync(STATE_SOURCE, "utf-8");
+
 for (const agent of AGENT_PATHS) {
   const targetDir = resolve(cwd, agent.path, SKILL_ID);
   const targetFile = join(targetDir, SKILL_FILENAME);
+  const stateFile = join(targetDir, STATE_FILENAME);
 
   try {
     if (!force && !update && existsSync(targetFile)) {
@@ -148,8 +160,10 @@ for (const agent of AGENT_PATHS) {
     }
     mkdirSync(targetDir, { recursive: true });
     writeFileSync(targetFile, skillContent, "utf-8");
+    writeFileSync(stateFile, stateContent, { mode: 0o755, encoding: "utf-8" });
     console.log(`  \x1b[32m✔\x1b[0m ${update ? "Updated" : "Installed"} for \x1b[37m${agent.name}\x1b[0m`);
     console.log(`    \x1b[90m${targetFile}\x1b[0m`);
+    console.log(`    \x1b[90m${stateFile}\x1b[0m`);
     installed++;
     installedPaths.push(agent.path);
   } catch (err) {

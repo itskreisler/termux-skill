@@ -66,6 +66,59 @@ termux-exec() {
 }
 ```
 
+## Context Persistence (Anti-Compaction)
+
+**Problem:** AI agents compact long conversations, losing environment detection state. The agent forgets whether to use native Termux, proot-distro paths, or SSH.
+
+**Solution:** Persist detected environment to disk. Survives compaction because the file exists outside context window.
+
+### First run — detect and save
+
+```bash
+# One-time setup: detect environment, save to ~/.termux-skill-state
+source termux-state.sh
+# Output: State saved: ENV=proot PREFIX=/data/data/com.termux/files/usr/bin
+```
+
+### Subsequent runs — load saved state
+
+```bash
+# Quick recovery after compaction — re-source saved state
+[ -f ~/.termux-skill-state ] && source ~/.termux-skill-state
+echo "ENV=$TERMUX_ENV PREFIX=$TERMUX_PREFIX"
+# ENV=proot PREFIX=/data/data/com.termux/files/usr/bin
+```
+
+### Using termux-exec (recommended)
+
+The `termux-exec` function from `termux-state.sh` handles all environments automatically:
+
+```bash
+source termux-state.sh
+
+# Works regardless of environment — no need to remember paths
+termux-exec termux-battery-status
+termux-exec termux-notification -t "Alert" -c "Still alive"
+termux-exec termux-camera-photo -c 1 ~/selfie.jpg
+```
+
+### State file location
+
+```bash
+cat ~/.termux-skill-state
+# TERMUX_ENV=proot
+# TERMUX_PREFIX=/data/data/com.termux/files/usr/bin
+# TERMUX_SSH_HOST=
+# TERMUX_SSH_PORT=
+# TERMUX_DETECTED_AT=2025-07-12T10:30:00-05:00
+```
+
+### Force re-detection
+
+```bash
+rm ~/.termux-skill-state && source termux-state.sh
+```
+
 ## Direct Access (native Termux or proot-distro)
 
 ### Native Termux (opencode compilado corriendo directamente en Termux)
